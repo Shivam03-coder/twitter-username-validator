@@ -1,3 +1,4 @@
+![image](https://github.com/user-attachments/assets/0ab9d376-3937-48f7-a3eb-0564b50c6637)
 # Twitter Username Validator
 
 A T3 Stack application that validates Twitter (X) usernames by checking their format and availability using the Twitter Developer API.
