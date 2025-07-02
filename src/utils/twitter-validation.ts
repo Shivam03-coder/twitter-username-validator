@@ -70,21 +70,21 @@ export async function checkUsernameAvailability(
       },
     );
 
-    // If we get data in the response, the username exists
-    if (response.data.data) {
-      return false;
+    if (response.data?.data?.id) {
+      return true;
     }
 
-    return true;
+    return false;
+
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      // Handle specific "Not Found" error (username available)
+      const errors = error.response?.data?.errors;
+
       if (
-        error.response?.data?.errors?.some(
-          (err: any) => err.title === "Not Found Error",
-        )
+        errors &&
+        errors.some((err: any) => err.title === "Not Found Error")
       ) {
-        return true;
+        return false;
       }
 
       console.error("Twitter API error:", error.response?.data);
@@ -95,3 +95,4 @@ export async function checkUsernameAvailability(
     return false;
   }
 }
+
