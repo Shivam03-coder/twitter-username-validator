@@ -1,9 +1,8 @@
-import React from 'react'
+import UsernameValidator from "@/components/user-validation";
+import React from "react";
 
 const index = () => {
-  return (
-    <div>index</div>
-  )
-}
+  return <UsernameValidator />;
+};
 
-export default index
+export default index;

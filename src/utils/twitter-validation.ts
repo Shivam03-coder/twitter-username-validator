@@ -1,3 +1,4 @@
+import axios from "axios";
 import type { ValidationResult } from "@/types/global";
 
 export function validateTwitterUsername(
@@ -56,38 +57,41 @@ export function validateTwitterUsername(
 
 export async function checkUsernameAvailability(
   username: string,
-): Promise<[string, boolean]> {
+): Promise<boolean> {
   const cleanUsername = username.replace(/^@/, "");
 
   try {
-    const options = {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_BEARER_TOKEN as string}`,
-      },
-    };
-
-    const response = await fetch(
+    const response = await axios.get(
       `https://api.twitter.com/2/users/by/username/${cleanUsername}`,
-      options,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_BEARER_TOKEN as string}`,
+        },
+      },
     );
 
-    const data = await response.json();
-
-    if (data.data) {
-      return ["taken", false];
+    // If we get data in the response, the username exists
+    if (response.data.data) {
+      return false;
     }
 
-    if (
-      data.errors &&
-      data.errors.some((error: any) => error.title === "Not Found Error")
-    ) {
-      return ["available", true];
-    }
-
-    return ["unknown", false];
+    return true;
   } catch (error) {
-    console.error("Error checking username availability:", error);
-    return ["error", false];
+    if (axios.isAxiosError(error)) {
+      // Handle specific "Not Found" error (username available)
+      if (
+        error.response?.data?.errors?.some(
+          (err: any) => err.title === "Not Found Error",
+        )
+      ) {
+        return true;
+      }
+
+      console.error("Twitter API error:", error.response?.data);
+    } else {
+      console.error("Error checking username availability:", error);
+    }
+
+    return false;
   }
 }
